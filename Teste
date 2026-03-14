@@ -1,0 +1,28 @@
+name: Rodar Roblox Studio com Vinegar
+on: [push]
+
+jobs:
+  roblox-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Instalar Dependências do Wine/Linux
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y xvfb libvulkan1 libvulkan1:i386 mesa-vulkan-drivers mesa-vulkan-drivers:i386
+
+      - name: Instalar Vinegar (via Go)
+        run: |
+          # Instala o Vinegar direto do source ou baixa o binário
+          go install ://github.com
+          export PATH=$PATH:$(go env GOPATH)/bin
+
+      - name: Rodar com Xvfb
+        run: |
+          # O segredo: rodar o Vinegar dentro do xvfb-run
+          # -screen 0 largura x altura x cores
+          xvfb-run --server-args="-screen 0 1280x1024x24" vinegar studio
+          
